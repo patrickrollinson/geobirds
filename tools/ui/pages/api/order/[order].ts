@@ -11,8 +11,10 @@ export default async function personHandler(
   res: NextApiResponse<any | ResponseError>
 ) {
   try {
+    const { order } = req.query;
     console.log('starting')
     const masterListPath = join(__dirname, '..',
+      '..',
       '..',
       '..',
       '..',
@@ -23,9 +25,11 @@ export default async function personHandler(
       'ioc.json'
     );
     const masterListFile = await readFile(masterListPath);
+    console.log(masterListFile);
     const masterList = JSON.parse(masterListFile.toString());
-    console.log(masterList);
-    res.status(200).json(masterList)
+    const orderData = masterList.list.orders.filter((x: any) => x.latin_name === order)
+    console.log(orderData);
+    res.status(200).json(orderData[0])
   } catch (error) {
     console.error(error)
     throw { message: 'Error' }

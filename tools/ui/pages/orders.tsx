@@ -1,4 +1,5 @@
 import { readdir } from "fs/promises";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { join } from "path";
 import { useEffect, useState } from "react";
@@ -8,8 +9,7 @@ const fetcher = async (url: string) => {
   try {
     const res = await fetch(url);
     const data = await res.json();
-    console.log('fetcher:', data.list.orders);
-    return data.list.orders;
+    return data;
   } catch (error) {
     console.error(error)
     throw error;
@@ -17,13 +17,13 @@ const fetcher = async (url: string) => {
 };
 
 export default function Orders() {
-  const { data, error } = useSWR(`/api/dataValidator`, fetcher);
+  const { data, error } = useSWR(`/api/orders`, fetcher);
   const [orders, setOrders] = useState([])
 
   useEffect(() => {
     console.log('data:', data)
-    if (data && data.length > 0) {
-      setOrders(data)
+    if (data) {
+      setOrders(data.list.orders)
     }
   }, [data])
 
@@ -41,10 +41,14 @@ export default function Orders() {
         <table className="">
           <tbody>
             {orders.map((order: any, i: number) => {
-              return <tr key={i} className="hover:bg-gray-100 h-20 rounded">
-                <td className="p-2">{order.latin_name}</td>
-                <td className="p-2">{order.note}</td>
-              </tr>
+              return (
+                <Link key={i} href={`order/${order.latin_name}`}>
+                  <tr className="hover:bg-gray-100 h-20 rounded">
+                    <td className="p-2">{order.latin_name}</td>
+                    <td className="p-2">{order.note}</td>
+                  </tr>
+                </Link>
+              )
             })}
           </tbody>
         </table>
